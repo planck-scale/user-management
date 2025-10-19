@@ -1,5 +1,6 @@
 package com.tericcabrel.authorization.configs;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,11 +13,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@Slf4j
+// @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     @Bean
@@ -33,20 +37,37 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
+        log.debug("enabling filter chain");
+        String[] disabledCsrfUrls = {"/", "/token/**", "/auth/**", "/login", "/css/**", "/js/**"};
+
         http.authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("USER")
-                                .requestMatchers("/").permitAll()
-
+                                .requestMatchers(disabledCsrfUrls).permitAll()
+//                                .requestMatchers("/").permitAll()
+//                                .requestMatchers("/auth/**").permitAll()
+//                                .requestMatchers("/token/**").permitAll()
+//                                .requestMatchers("favicon.ico").permitAll()
+//                                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
                 )
+                .csrf(csrf ->
+                        csrf.ignoringRequestMatchers(disabledCsrfUrls)
+                                .csrfTokenRepository(csrfTokenRepository()))
                 .formLogin(form -> form
-                        .loginPage("/login") // Specify custom login page
-                        .permitAll() // Allow access to login page
+                        .loginPage("/login")
+                        .permitAll()
                 )
                 .logout(logout -> logout
                         .permitAll())
                 .userDetailsService(userDetailsService);
         return http.build();
+    }
+
+    @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN"); // Customize header name if needed
+        return repository;
     }
 
 }
