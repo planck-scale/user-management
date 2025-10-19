@@ -5,83 +5,48 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-import com.tericcabrel.authorization.services.UserServiceImpl;
-import com.tericcabrel.authorization.utils.JwtTokenUtil;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
-    @Autowired
-    private UserServiceImpl userServiceImpl;
-
-    private JwtTokenUtil jwtTokenUtil;
-
-    private AuthEntryPoint unauthorizedHandler;
-
-    public WebSecurityConfig(AuthEntryPoint unauthorizedHandler, JwtTokenUtil jwtTokenUtil) {
-        this.unauthorizedHandler = unauthorizedHandler;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
-
-    @Override
     @Bean
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Autowired
-    public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userServiceImpl)
-                .passwordEncoder(encoder());
+    public void globalUserDetails(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService,
+                                  PasswordEncoder encoder) throws Exception {
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(encoder);
     }
 
     @Bean
-    public AuthenticationFilter authenticationTokenFilterBean() throws Exception {
-        return new AuthenticationFilter(userServiceImpl, jwtTokenUtil);
+    public SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
+        http.authorizeHttpRequests(authorize ->
+                        authorize.requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/user/**").hasRole("USER")
+                                .requestMatchers("/").permitAll()
+
+                )
+                .formLogin(form -> form
+                        .loginPage("/login") // Specify custom login page
+                        .permitAll() // Allow access to login page
+                )
+                .logout(logout -> logout
+                        .permitAll())
+                .userDetailsService(userDetailsService);
+        return http.build();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-            .cors()
-            .and()
-            .csrf()
-            .disable()
-            .authorizeRequests()
-            .antMatchers(
-                    "/auth/*",
-                    "/token/*",
-                    "/v2/api-docs",
-                    "/swagger-resources/**",
-                    "/swagger-ui.html**",
-                    "/webjars/**",
-                    "/",
-                    "/uploads/**",
-                    "favicon.ico"
-            ).permitAll()
-            .anyRequest().authenticated()
-            .and()
-            .exceptionHandling()
-            .authenticationEntryPoint(unauthorizedHandler)
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-    }
-
-    @Bean
-    public BCryptPasswordEncoder encoder(){
-        return new BCryptPasswordEncoder();
-    }
 }

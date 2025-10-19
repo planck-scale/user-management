@@ -3,11 +3,12 @@ package com.tericcabrel.authorization.services;
 import com.tericcabrel.authorization.models.entities.Permission;
 import com.tericcabrel.authorization.repositories.PermissionRepository;
 import com.tericcabrel.authorization.services.interfaces.PermissionService;
+import org.bson.types.ObjectId;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.bson.types.ObjectId;
-import org.springframework.stereotype.Service;
 
 @Service
 public class PermissionServiceImpl implements PermissionService {

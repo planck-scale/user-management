@@ -9,6 +9,14 @@ import com.tericcabrel.authorization.models.enums.PermissionLoadMode;
 import com.tericcabrel.authorization.repositories.PermissionRepository;
 import com.tericcabrel.authorization.repositories.RoleRepository;
 import com.tericcabrel.authorization.services.interfaces.PermissionLoader;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -17,13 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-import org.springframework.util.FileCopyUtils;
 
 @Service
 public class PermissionLoaderImpl implements PermissionLoader {

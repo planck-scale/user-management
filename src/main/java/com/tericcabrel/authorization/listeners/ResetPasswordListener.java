@@ -1,6 +1,11 @@
 package com.tericcabrel.authorization.listeners;
 
+import com.tericcabrel.authorization.events.OnResetPasswordEvent;
+import com.tericcabrel.authorization.models.entities.User;
 import com.tericcabrel.authorization.services.interfaces.UserAccountService;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
@@ -10,14 +15,8 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
-
-import com.tericcabrel.authorization.models.entities.User;
-import com.tericcabrel.authorization.events.OnResetPasswordEvent;
 
 
 @Component

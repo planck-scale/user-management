@@ -1,8 +1,7 @@
 package com.tericcabrel.authorization.events;
 
-import org.springframework.context.ApplicationEvent;
-
 import com.tericcabrel.authorization.models.entities.User;
+import org.springframework.context.ApplicationEvent;
 
 public class OnResetPasswordEvent extends ApplicationEvent {
     private User user;

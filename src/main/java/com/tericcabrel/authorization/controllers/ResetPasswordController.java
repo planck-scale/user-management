@@ -1,33 +1,24 @@
 package com.tericcabrel.authorization.controllers;
 
+import com.tericcabrel.authorization.events.OnResetPasswordEvent;
 import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
+import com.tericcabrel.authorization.models.dtos.ForgotPasswordDto;
+import com.tericcabrel.authorization.models.dtos.ResetPasswordDto;
+import com.tericcabrel.authorization.models.entities.User;
 import com.tericcabrel.authorization.models.entities.UserAccount;
-import com.tericcabrel.authorization.models.response.BadRequestResponse;
-import com.tericcabrel.authorization.models.response.SuccessResponse;
 import com.tericcabrel.authorization.services.interfaces.UserAccountService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import java.util.Map;
+import com.tericcabrel.authorization.services.interfaces.UserService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.tericcabrel.authorization.utils.Constants.*;
 
-import com.tericcabrel.authorization.models.dtos.ForgotPasswordDto;
-import com.tericcabrel.authorization.models.dtos.ResetPasswordDto;
-import com.tericcabrel.authorization.models.response.InvalidDataResponse;
-import com.tericcabrel.authorization.models.entities.User;
-import com.tericcabrel.authorization.services.interfaces.UserService;
-import com.tericcabrel.authorization.events.OnResetPasswordEvent;
 
-
-@Api(tags = SWG_RESPWD_TAG_NAME, description = SWG_RESPWD_TAG_DESCRIPTION)
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/auth")
@@ -49,12 +40,6 @@ public class ResetPasswordController {
         this.userAccountService = userAccountService;
     }
 
-    @ApiOperation(value = SWG_RESPWD_FORGOT_OPERATION, response = SuccessResponse.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = SWG_RESPWD_FORGOT_MESSAGE, response = SuccessResponse.class),
-        @ApiResponse(code = 400, message = SWG_RESPWD_FORGOT_ERROR, response = BadRequestResponse.class),
-        @ApiResponse(code = 422, message = INVALID_DATA_MESSAGE, response = InvalidDataResponse.class),
-    })
     @PostMapping(value = "/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordDto forgotPasswordDto)
         throws ResourceNotFoundException {
@@ -74,12 +59,6 @@ public class ResetPasswordController {
         return ResponseEntity.ok(result);
     }
 
-    @ApiOperation(value = SWG_RESPWD_RESET_OPERATION, response = SuccessResponse.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = SWG_RESPWD_RESET_MESSAGE, response = SuccessResponse.class),
-        @ApiResponse(code = 400, message = SWG_RESPWD_RESET_ERROR, response = BadRequestResponse.class),
-        @ApiResponse(code = 422, message = INVALID_DATA_MESSAGE, response = InvalidDataResponse.class),
-    })
     @PostMapping(value = "/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordDto passwordResetDto)
         throws ResourceNotFoundException {

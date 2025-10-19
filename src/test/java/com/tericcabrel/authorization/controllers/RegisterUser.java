@@ -1,13 +1,5 @@
 package com.tericcabrel.authorization.controllers;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 import com.tericcabrel.authorization.exceptions.GlobalExceptionHandler;
 import com.tericcabrel.authorization.services.interfaces.RoleService;
 import com.tericcabrel.authorization.services.interfaces.UserService;
@@ -22,8 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.hamcrest.Matchers.hasKey;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 @ExtendWith(MockitoExtension.class)
-public class RegisterUserTest {
+public class RegisterUser {
 
   @Mock
   UserService userService;

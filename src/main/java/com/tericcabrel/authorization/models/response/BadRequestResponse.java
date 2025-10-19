@@ -1,9 +1,10 @@
 package com.tericcabrel.authorization.models.response;
 
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Map;
 
 @AllArgsConstructor
 @Setter

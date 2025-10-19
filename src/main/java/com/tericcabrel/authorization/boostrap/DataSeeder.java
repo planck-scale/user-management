@@ -1,23 +1,20 @@
 package com.tericcabrel.authorization.boostrap;
 
 import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
+import com.tericcabrel.authorization.models.dtos.CreateRoleDto;
+import com.tericcabrel.authorization.models.dtos.CreateUserDto;
 import com.tericcabrel.authorization.services.interfaces.PermissionLoader;
-import java.util.Map;
+import com.tericcabrel.authorization.services.interfaces.RoleService;
+import com.tericcabrel.authorization.services.interfaces.UserService;
 import lombok.SneakyThrows;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import static com.tericcabrel.authorization.utils.Constants.ROLE_ADMIN;
-import static com.tericcabrel.authorization.utils.Constants.ROLE_SUPER_ADMIN;
-import static com.tericcabrel.authorization.utils.Constants.ROLE_USER;
-
-import com.tericcabrel.authorization.models.dtos.CreateRoleDto;
-import com.tericcabrel.authorization.models.dtos.CreateUserDto;
-import com.tericcabrel.authorization.services.interfaces.RoleService;
-import com.tericcabrel.authorization.services.interfaces.UserService;
+import static com.tericcabrel.authorization.utils.Constants.*;
 
 @Component
 public class DataSeeder implements ApplicationListener<ContextRefreshedEvent> {

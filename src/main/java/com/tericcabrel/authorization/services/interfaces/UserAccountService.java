@@ -1,8 +1,8 @@
 package com.tericcabrel.authorization.services.interfaces;
 
 import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
-import com.tericcabrel.authorization.models.entities.UserAccount;
 import com.tericcabrel.authorization.models.entities.User;
+import com.tericcabrel.authorization.models.entities.UserAccount;
 
 import java.util.List;
 

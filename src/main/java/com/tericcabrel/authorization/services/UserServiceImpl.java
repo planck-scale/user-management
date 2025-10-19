@@ -1,36 +1,33 @@
 package com.tericcabrel.authorization.services;
 
-import static com.tericcabrel.authorization.utils.Constants.USER_NOT_FOUND_MESSAGE;
-
 import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
-import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-
 import com.tericcabrel.authorization.models.dtos.CreateUserDto;
 import com.tericcabrel.authorization.models.dtos.UpdatePasswordDto;
 import com.tericcabrel.authorization.models.dtos.UpdateUserDto;
 import com.tericcabrel.authorization.models.entities.User;
 import com.tericcabrel.authorization.repositories.UserRepository;
 import com.tericcabrel.authorization.services.interfaces.UserService;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+import static com.tericcabrel.authorization.utils.Constants.USER_NOT_FOUND_MESSAGE;
 
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder bCryptEncoder; // Fails when injected by the constructor
+    private UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private PasswordEncoder bCryptEncoder; // Fails when injected by the constructor
 
     @Override
     public User save(CreateUserDto createUserDto) {

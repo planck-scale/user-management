@@ -1,37 +1,29 @@
 package com.tericcabrel.authorization.controllers;
 
 import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import java.util.Map;
+import com.tericcabrel.authorization.models.dtos.RefreshTokenDto;
+import com.tericcabrel.authorization.models.dtos.ValidateTokenDto;
+import com.tericcabrel.authorization.models.entities.RefreshToken;
+import com.tericcabrel.authorization.models.entities.User;
+import com.tericcabrel.authorization.models.response.AuthTokenResponse;
+import com.tericcabrel.authorization.repositories.RefreshTokenRepository;
+import com.tericcabrel.authorization.services.interfaces.UserService;
+import com.tericcabrel.authorization.utils.JwtTokenUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.SignatureException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.util.Date;
 import java.util.HashMap;
-
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.SignatureException;
+import java.util.Map;
 
 import static com.tericcabrel.authorization.utils.Constants.*;
 
-import com.tericcabrel.authorization.models.response.*;
-import com.tericcabrel.authorization.models.dtos.RefreshTokenDto;
-import com.tericcabrel.authorization.models.dtos.ValidateTokenDto;
-import com.tericcabrel.authorization.models.entities.User;
-import com.tericcabrel.authorization.models.entities.RefreshToken;
-import com.tericcabrel.authorization.repositories.RefreshTokenRepository;
-import com.tericcabrel.authorization.services.interfaces.UserService;
-import com.tericcabrel.authorization.utils.JwtTokenUtil;
 
-
-@Api(tags = SWG_TOKEN_TAG_NAME, description = SWG_TOKEN_TAG_DESCRIPTION)
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/token")
@@ -55,12 +47,6 @@ public class TokenController {
     this.userService = userService;
   }
 
-  @ApiOperation(value = SWG_TOKEN_VALIDATE_OPERATION, response = SuccessResponse.class)
-  @ApiResponses(value = {
-      @ApiResponse(code = 200, message = SWG_TOKEN_VALIDATE_MESSAGE, response = SuccessResponse.class),
-      @ApiResponse(code = 400, message = SWG_TOKEN_VALIDATE_ERROR, response = BadRequestResponse.class),
-      @ApiResponse(code = 422, message = INVALID_DATA_MESSAGE, response = InvalidDataResponse.class),
-  })
   @PostMapping(value = "/validate")
   public ResponseEntity<Map<String, String>> validate(@Valid @RequestBody ValidateTokenDto validateTokenDto) {
     String username = null;
@@ -87,12 +73,6 @@ public class TokenController {
     return ResponseEntity.badRequest().body(result);
   }
 
-  @ApiOperation(value = SWG_TOKEN_REFRESH_OPERATION, response = SuccessResponse.class)
-  @ApiResponses(value = {
-      @ApiResponse(code = 200, message = SWG_TOKEN_REFRESH_MESSAGE, response = AuthTokenResponse.class),
-      @ApiResponse(code = 400, message = SWG_TOKEN_REFRESH_ERROR, response = SuccessResponse.class),
-      @ApiResponse(code = 422, message = INVALID_DATA_MESSAGE, response = InvalidDataResponse.class),
-  })
   @PostMapping(value = "/refresh")
   public ResponseEntity<Object> refresh(@Valid @RequestBody RefreshTokenDto refreshTokenDto)
       throws ResourceNotFoundException {

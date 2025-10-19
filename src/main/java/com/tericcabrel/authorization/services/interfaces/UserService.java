@@ -1,13 +1,13 @@
 package com.tericcabrel.authorization.services.interfaces;
 
 import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
-import java.util.List;
-
+import com.tericcabrel.authorization.models.dtos.CreateUserDto;
 import com.tericcabrel.authorization.models.dtos.UpdatePasswordDto;
 import com.tericcabrel.authorization.models.dtos.UpdateUserDto;
-import com.tericcabrel.authorization.models.dtos.CreateUserDto;
 import com.tericcabrel.authorization.models.entities.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
 
 public interface UserService extends UserDetailsService {
     User save(CreateUserDto createUserDto);

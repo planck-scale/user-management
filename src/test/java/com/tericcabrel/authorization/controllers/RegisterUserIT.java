@@ -1,35 +1,32 @@
 package com.tericcabrel.authorization.controllers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.tericcabrel.authorization.BaseIT;
 import com.tericcabrel.authorization.models.dtos.CreateUserDto;
 import com.tericcabrel.authorization.models.entities.Coordinates;
 import com.tericcabrel.authorization.models.entities.User;
 import com.tericcabrel.authorization.models.response.InvalidDataResponse;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Address;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class RegisterUserIT extends BaseIT {
   private static final String ENDPOINT = "/auth/register";
@@ -37,7 +34,7 @@ public class RegisterUserIT extends BaseIT {
   @Autowired
   private TestRestTemplate restTemplate;
 
-  @MockBean
+  @MockitoBean
   private JavaMailSender mailSender;
 
   @Captor

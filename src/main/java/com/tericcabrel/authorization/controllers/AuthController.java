@@ -1,8 +1,21 @@
 package com.tericcabrel.authorization.controllers;
 
+import com.tericcabrel.authorization.events.OnRegistrationCompleteEvent;
 import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
+import com.tericcabrel.authorization.models.dtos.CreateUserDto;
+import com.tericcabrel.authorization.models.dtos.LoginUserDto;
+import com.tericcabrel.authorization.models.dtos.ValidateTokenDto;
+import com.tericcabrel.authorization.models.entities.RefreshToken;
 import com.tericcabrel.authorization.models.entities.Role;
-import io.swagger.annotations.*;
+import com.tericcabrel.authorization.models.entities.User;
+import com.tericcabrel.authorization.models.entities.UserAccount;
+import com.tericcabrel.authorization.models.response.AuthTokenResponse;
+import com.tericcabrel.authorization.repositories.RefreshTokenRepository;
+import com.tericcabrel.authorization.services.interfaces.RoleService;
+import com.tericcabrel.authorization.services.interfaces.UserAccountService;
+import com.tericcabrel.authorization.services.interfaces.UserService;
+import com.tericcabrel.authorization.utils.Helpers;
+import com.tericcabrel.authorization.utils.JwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -14,27 +27,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.tericcabrel.authorization.utils.Constants.*;
 
-import com.tericcabrel.authorization.models.dtos.LoginUserDto;
-import com.tericcabrel.authorization.models.dtos.CreateUserDto;
-import com.tericcabrel.authorization.models.dtos.ValidateTokenDto;
-import com.tericcabrel.authorization.models.response.*;
-import com.tericcabrel.authorization.models.entities.UserAccount;
-import com.tericcabrel.authorization.models.entities.User;
-import com.tericcabrel.authorization.models.entities.RefreshToken;
-import com.tericcabrel.authorization.repositories.RefreshTokenRepository;
-import com.tericcabrel.authorization.services.interfaces.RoleService;
-import com.tericcabrel.authorization.services.interfaces.UserService;
-import com.tericcabrel.authorization.services.interfaces.UserAccountService;
-import com.tericcabrel.authorization.utils.JwtTokenUtil;
-import com.tericcabrel.authorization.utils.Helpers;
-import com.tericcabrel.authorization.events.OnRegistrationCompleteEvent;
 
-
-@Api(tags = SWG_AUTH_TAG_NAME, description = SWG_AUTH_TAG_DESCRIPTION)
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/auth")
@@ -73,12 +72,6 @@ public class AuthController {
         this.userAccountService = userAccountService;
     }
 
-    @ApiOperation(value = SWG_AUTH_REGISTER_OPERATION, response = BadRequestResponse.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = SWG_AUTH_REGISTER_MESSAGE, response = UserResponse.class),
-        @ApiResponse(code = 400, message = SWG_AUTH_REGISTER_ERROR, response = BadRequestResponse.class),
-        @ApiResponse(code = 422, message = INVALID_DATA_MESSAGE, response = InvalidDataResponse.class),
-    })
     @PostMapping(value = "/register")
     public ResponseEntity<Object> register(@Valid @RequestBody CreateUserDto createUserDto) {
         try {
@@ -101,12 +94,6 @@ public class AuthController {
         }
     }
 
-    @ApiOperation(value = SWG_AUTH_LOGIN_OPERATION, response = BadRequestResponse.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = SWG_AUTH_LOGIN_MESSAGE, response = AuthTokenResponse.class),
-        @ApiResponse(code = 400, message = SWG_AUTH_LOGIN_ERROR, response = BadRequestResponse.class),
-        @ApiResponse(code = 422, message = INVALID_DATA_MESSAGE, response = InvalidDataResponse.class),
-    })
     @PostMapping(value = "/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginUserDto loginUserDto)
         throws ResourceNotFoundException {
@@ -143,11 +130,6 @@ public class AuthController {
         return ResponseEntity.ok(new AuthTokenResponse(token, refreshToken, expirationDate.getTime()));
     }
 
-    @ApiOperation(value = SWG_AUTH_CONFIRM_ACCOUNT_OPERATION, response = SuccessResponse.class)
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = SWG_AUTH_CONFIRM_ACCOUNT_MESSAGE, response = SuccessResponse.class),
-        @ApiResponse(code = 400, message = SWG_AUTH_CONFIRM_ACCOUNT_ERROR, response = BadRequestResponse.class),
-    })
     @PostMapping(value = "/confirm-account")
     public ResponseEntity<Object> confirmAccount(@Valid @RequestBody ValidateTokenDto validateTokenDto)
         throws ResourceNotFoundException {
