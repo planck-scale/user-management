@@ -10,9 +10,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
@@ -20,8 +23,11 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 @Configuration
 @EnableWebSecurity
 @Slf4j
-// @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
+
+    @Autowired
+    AuthenticationFilter authFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -38,27 +44,33 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         log.debug("enabling filter chain");
-        String[] disabledCsrfUrls = {"/", "/token/**", "/auth/**", "/login", "/css/**", "/js/**"};
+        String[] whitelistedUrls = {"/", "/token/**", "/auth/**", "/login", "/css/**", "/js/**"};
 
         http.authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("USER")
-                                .requestMatchers(disabledCsrfUrls).permitAll()
-//                                .requestMatchers("/").permitAll()
+                                .requestMatchers("/users/**").authenticated()
+                                .requestMatchers(whitelistedUrls).permitAll()
+                                .anyRequest().permitAll()
 //                                .requestMatchers("/auth/**").permitAll()
 //                                .requestMatchers("/token/**").permitAll()
 //                                .requestMatchers("favicon.ico").permitAll()
 //                                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
                 )
-                .csrf(csrf ->
-                        csrf.ignoringRequestMatchers(disabledCsrfUrls)
-                                .csrfTokenRepository(csrfTokenRepository()))
+                .addFilterBefore(authFilter, AnonymousAuthenticationFilter.class)
+                .csrf(AbstractHttpConfigurer::disable)
+//                .csrf(csrf ->
+//                        csrf.ignoringRequestMatchers(whitelistedUrls)
+//                                .csrfTokenRepository(csrfTokenRepository()))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .permitAll())
+                .sessionManagement(
+                        session-> session.sessionCreationPolicy(
+                                        SessionCreationPolicy.STATELESS))
                 .userDetailsService(userDetailsService);
         return http.build();
     }

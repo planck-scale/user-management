@@ -1,5 +1,6 @@
 package com.tericcabrel.authorization.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,6 +14,7 @@ import java.util.Date;
 @Setter
 public abstract class BaseModel {
     @MongoId(FieldType.OBJECT_ID)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected String id;
 
     protected Date createdAt;

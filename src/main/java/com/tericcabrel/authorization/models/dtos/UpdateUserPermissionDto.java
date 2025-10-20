@@ -10,6 +10,10 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @Getter
 public class UpdateUserPermissionDto {
+
+    @NotEmpty(message = "The field is mandatory")
+    private String email;
+
     @NotEmpty(message = "The field must have at least one item")
     private String[] permissions;
 }

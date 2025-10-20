@@ -5,6 +5,7 @@ import com.tericcabrel.authorization.models.entities.User;
 import com.tericcabrel.authorization.models.entities.UserAccount;
 import com.tericcabrel.authorization.repositories.UserAccountRepository;
 import com.tericcabrel.authorization.services.interfaces.UserAccountService;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.*;
 import static com.tericcabrel.authorization.utils.Constants.INVALID_TOKEN_MESSAGE;
 import static com.tericcabrel.authorization.utils.Constants.RESOURCE_NOT_FOUND_MESSAGE;
 
-
+@Slf4j
 @Service(value = "userAccountService")
 public class UserAccountServiceImpl implements UserAccountService {
     private final UserAccountRepository userAccountRepository;
@@ -33,8 +34,9 @@ public class UserAccountServiceImpl implements UserAccountService {
         newUserAccount.setUser(user)
                 .setToken(token)
                 .setExpireAt(c.getTime().getTime());
-
-        return userAccountRepository.save(newUserAccount);
+        newUserAccount = userAccountRepository.save(newUserAccount);
+        log.debug("saved new user account {}", newUserAccount);
+        return newUserAccount;
     }
 
     @Override

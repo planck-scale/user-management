@@ -6,6 +6,7 @@ import com.tericcabrel.authorization.services.interfaces.UserAccountService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
@@ -19,6 +20,7 @@ import org.thymeleaf.context.Context;
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class RegistrationListener implements ApplicationListener<OnRegistrationCompleteEvent> {
     private static final String TEMPLATE_NAME = "html/registration";
@@ -55,7 +57,6 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         User user = event.getUser();
         String token = UUID.randomUUID().toString();
         userAccountService.save(user, token);
-
         String confirmationUrl = environment.getProperty("app.url.confirm-account") + "?token=" + token;
         String mailFrom = environment.getProperty("spring.mail.properties.mail.smtp.from");
         String mailFromName = environment.getProperty("mail.from.name", "Identity");
@@ -63,6 +64,8 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
         final MimeMessageHelper email;
         try {
+            log.debug("sending confirmation email to {}", user.getEmail());
+
             email = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
             email.setTo(user.getEmail());
@@ -84,8 +87,9 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
             email.addInline("springLogo", clr, PNG_MIME);
 
             mailSender.send(mimeMessage);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            e.printStackTrace();
+            log.info("sent confirmation email to {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("Not able to send email for user {}",user.getEmail(), e);
         }
     }
 }

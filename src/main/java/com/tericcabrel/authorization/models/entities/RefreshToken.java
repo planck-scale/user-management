@@ -1,5 +1,6 @@
 package com.tericcabrel.authorization.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import org.springframework.data.redis.core.index.Indexed;
 @Getter
 public class RefreshToken {
     @Id
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String id;
 
     @Indexed

@@ -9,11 +9,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import static com.tericcabrel.authorization.utils.Constants.*;
 
 @Slf4j
+@Component
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -36,28 +39,30 @@ public class AuthenticationFilter extends OncePerRequestFilter {
         String header = req.getHeader(HEADER_STRING);
         String username = null;
         String authToken = null;
-        log.debug("Authentication Filter");
+        log.debug("Authorization {}", header);
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
             authToken = header.replace(TOKEN_PREFIX,"");
 
             try {
                 username = jwtTokenUtil.getUsernameFromToken(authToken);
+                log.debug("fetched user from token {}", username);
             } catch (IllegalArgumentException e) {
-                logger.error(JWT_ILLEGAL_ARGUMENT_MESSAGE, e);
+                log.error(JWT_ILLEGAL_ARGUMENT_MESSAGE, e);
             } catch (ExpiredJwtException e) {
-                logger.warn(JWT_EXPIRED_MESSAGE, e);
+                log.warn(JWT_EXPIRED_MESSAGE, e);
             } catch(SignatureException e){
-                logger.error(JWT_SIGNATURE_MESSAGE);
+                log.error(JWT_SIGNATURE_MESSAGE);
             }
         } else {
-            logger.warn("couldn't find bearer string, will ignore the header");
+            log.warn("couldn't find bearer string, will ignore the header");
         }
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        log.debug("authentication context {}", SecurityContextHolder.getContext().getAuthentication());
+        if (username != null
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             boolean isValidToken = jwtTokenUtil.validateToken(authToken, userDetails);
-
+            log.debug("token is valid ? {}", isValidToken);
             if (Boolean.TRUE.equals(isValidToken)) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userDetails, "", userDetails.getAuthorities()
@@ -65,10 +70,11 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
 
-                logger.info("authenticated user " + username);
-
+                log.info("authenticated the user {} with object {}", username, authentication);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } else {
+            log.debug("user is not authenticated {}", authToken);
         }
 
         chain.doFilter(req, res);

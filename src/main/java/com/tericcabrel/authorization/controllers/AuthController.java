@@ -16,6 +16,7 @@ import com.tericcabrel.authorization.services.interfaces.UserAccountService;
 import com.tericcabrel.authorization.services.interfaces.UserService;
 import com.tericcabrel.authorization.utils.Helpers;
 import com.tericcabrel.authorization.utils.JwtTokenUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -34,11 +35,11 @@ import java.util.Map;
 import static com.tericcabrel.authorization.utils.Constants.*;
 
 
+@Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final UserService userService;
 
@@ -75,6 +76,7 @@ public class AuthController {
     @PostMapping(value = "/register")
     public ResponseEntity<Object> register(@Valid @RequestBody CreateUserDto createUserDto) {
         try {
+            log.debug("saving user {}", createUserDto);
             Role roleUser = roleService.findByName(ROLE_USER);
 
             createUserDto.setRole(roleUser);
@@ -88,7 +90,7 @@ public class AuthController {
                 Map<String, String> result = new HashMap<>();
                 result.put("message", SWG_AUTH_REGISTER_ERROR);
 
-                logger.error("Register User: " + ROLE_NOT_FOUND_MESSAGE);
+                log.error("Register User: " + ROLE_NOT_FOUND_MESSAGE);
 
                 return ResponseEntity.badRequest().body(result);
         }
@@ -133,7 +135,9 @@ public class AuthController {
     @PostMapping(value = "/confirm-account")
     public ResponseEntity<Object> confirmAccount(@Valid @RequestBody ValidateTokenDto validateTokenDto)
         throws ResourceNotFoundException {
+        log.debug("confirming user account for {}", validateTokenDto);
         UserAccount userAccount = userAccountService.findByToken(validateTokenDto.getToken());
+        log.debug("loaded {}", userAccount);
         Map<String, String> result = new HashMap<>();
 
         if (userAccount.isExpired()) {

@@ -12,6 +12,7 @@ import com.tericcabrel.authorization.models.response.UserResponse;
 import com.tericcabrel.authorization.services.FileStorageServiceImpl;
 import com.tericcabrel.authorization.services.interfaces.PermissionService;
 import com.tericcabrel.authorization.services.interfaces.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +35,11 @@ import static com.tericcabrel.authorization.utils.Constants.PASSWORD_NOT_MATCH_M
 import static com.tericcabrel.authorization.utils.Constants.USER_PICTURE_NO_ACTION_MESSAGE;
 
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/users")
 @Validated
 public class UserController {
-    private final Log logger = LogFactory.getLog(this.getClass());
 
     private final UserService userService;
 
@@ -53,7 +54,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAuthority('read:users')")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<UserListResponse> all(){
         return ResponseEntity.ok(new UserListResponse(userService.findAll()));
     }
@@ -61,6 +62,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserResponse> currentUser() throws ResourceNotFoundException {
+        log.debug("returning current user");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         return ResponseEntity.ok(new UserResponse(userService.findByEmail(authentication.getName())));
@@ -134,7 +136,7 @@ public class UserController {
                 }
             }
         } else {
-            logger.info(USER_PICTURE_NO_ACTION_MESSAGE);
+            log.info(USER_PICTURE_NO_ACTION_MESSAGE);
         }
 
         return ResponseEntity.ok().body(new UserResponse(user));
@@ -142,10 +144,10 @@ public class UserController {
 
 
     @PreAuthorize("hasAuthority('assign:permission')")
-    @PutMapping("/{id}/permissions")
-    public ResponseEntity<UserResponse> assignPermissions(@PathVariable String id, @Valid @RequestBody UpdateUserPermissionDto updateUserPermissionDto)
+    @PutMapping("/permissions")
+    public ResponseEntity<UserResponse> assignPermissions(@Valid @RequestBody UpdateUserPermissionDto updateUserPermissionDto)
         throws ResourceNotFoundException {
-        User user = userService.findById(id);
+        User user = userService.findByEmail(updateUserPermissionDto.getEmail());
 
         Arrays.stream(updateUserPermissionDto.getPermissions()).forEach(permissionName -> {
             Optional<Permission> permission = permissionService.findByName(permissionName);
@@ -161,10 +163,10 @@ public class UserController {
     }
 
     @PreAuthorize("hasAuthority('revoke:permission')")
-    @DeleteMapping("/{id}/permissions")
-    public ResponseEntity<User> revokePermissions(@PathVariable String id, @Valid @RequestBody UpdateUserPermissionDto updateUserPermissionDto)
+    @DeleteMapping("/permissions")
+    public ResponseEntity<User> revokePermissions(@Valid @RequestBody UpdateUserPermissionDto updateUserPermissionDto)
         throws ResourceNotFoundException {
-        User user = userService.findById(id);
+        User user = userService.findByEmail(updateUserPermissionDto.getEmail());
 
         Arrays.stream(updateUserPermissionDto.getPermissions()).forEach(permissionName -> {
             Optional<Permission> permission = permissionService.findByName(permissionName);
