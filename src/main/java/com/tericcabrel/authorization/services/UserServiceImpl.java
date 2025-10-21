@@ -4,11 +4,13 @@ import com.tericcabrel.authorization.exceptions.ResourceNotFoundException;
 import com.tericcabrel.authorization.models.dtos.CreateUserDto;
 import com.tericcabrel.authorization.models.dtos.UpdatePasswordDto;
 import com.tericcabrel.authorization.models.dtos.UpdateUserDto;
+import com.tericcabrel.authorization.models.entities.Role;
 import com.tericcabrel.authorization.models.entities.User;
 import com.tericcabrel.authorization.repositories.UserRepository;
 import com.tericcabrel.authorization.services.interfaces.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -43,9 +45,24 @@ public class UserServiceImpl implements UserService {
                 .setAvatar(null)
                 .setTimezone(createUserDto.getTimezone())
                 .setCoordinates(createUserDto.getCoordinates())
-                .setRole(createUserDto.getRole());
+                .setRole(createUserDto.getRole())
+                .setPhoneNumber(createUserDto.getPhoneNumber())
+                .setAttributes(createUserDto.getAttributes());
 
         return userRepository.save(newUser);
+    }
+
+    @Override
+    public List<User> findAllWithRole(String role) {
+        List<User> list = new ArrayList<>();
+        User probe = new User();
+        Role r = new Role();
+        r.setName(role);
+        probe.setRole(r);
+
+        Example<User> example = Example.of(probe);
+        userRepository.findAll(example).iterator().forEachRemaining(list::add);
+        return list; //todo
     }
 
     @Override

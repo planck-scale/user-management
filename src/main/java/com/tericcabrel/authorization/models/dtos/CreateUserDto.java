@@ -5,11 +5,14 @@ import com.tericcabrel.authorization.models.entities.Coordinates;
 import com.tericcabrel.authorization.models.entities.Role;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import javax.validation.constraints.Pattern;
+import java.util.Map;
 
 
 @FieldMatch.List({
@@ -21,6 +24,7 @@ import javax.validation.constraints.Size;
 @Accessors(chain = true)
 @Setter
 @Getter
+@ToString(exclude = {"password", "confirmPassword"})
 public class CreateUserDto {
     private String id;
 
@@ -33,6 +37,10 @@ public class CreateUserDto {
     @Email(message = "Email address is not valid")
     @NotBlank(message = "The email address is required")
     private String email;
+
+    @Pattern(regexp="(^$|[0-9]{10})", message = "Must be at least 10 digits")
+    @NotBlank(message = "The phone number is required")
+    private String phoneNumber;
 
     @Size(min = 6, message = "Must be at least 6 characters")
     private String password;
@@ -54,6 +62,8 @@ public class CreateUserDto {
     private Coordinates coordinates;
 
     private Role role;
+
+    private Map<String, String> attributes;
 
     public CreateUserDto() {
         enabled = true;

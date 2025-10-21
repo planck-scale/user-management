@@ -1,0 +1,21 @@
+group_name, parent_name
+Executive Leadership,
+CEO,Executive Leadership
+Engineering,CEO
+Product,CEO
+Marketing,CEO
+Sales,CEO
+Operations,CEO
+Backend,Engineering
+Frontend,Engineering
+Design,Product
+Management,Product
+Content,Marketing
+Paid Media,Marketing
+Enterprise,Sales
+SMB,Sales
+Support,Operations
+Finance,Operations
+Team Voyager,Product
+Growth Team,Marketing
+EMEA Team,Sales

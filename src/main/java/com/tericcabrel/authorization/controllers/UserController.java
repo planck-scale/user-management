@@ -59,6 +59,13 @@ public class UserController {
         return ResponseEntity.ok(new UserListResponse(userService.findAll()));
     }
 
+    @PreAuthorize("hasAuthority('read:users')")
+    @GetMapping("/all/{role}")
+    public ResponseEntity<UserListResponse> findByRole(@PathVariable String role) {
+        log.debug("finding usrs with role {}", role);
+        return ResponseEntity.ok(new UserListResponse(userService.findAllWithRole(role)));
+    }
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserResponse> currentUser() throws ResourceNotFoundException {

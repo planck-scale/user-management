@@ -12,6 +12,8 @@ import java.util.List;
 public interface UserService extends UserDetailsService {
     User save(CreateUserDto createUserDto);
 
+    List<User> findAllWithRole(String role);
+
     List<User> findAll();
 
     void delete(String id);

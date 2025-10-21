@@ -29,7 +29,7 @@ public class AdminController {
   }
 
   @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-  @PostMapping(value = "")
+  @PostMapping("/create-user")
   public ResponseEntity<UserResponse> create(@Valid @RequestBody CreateUserDto createUserDto)
       throws ResourceNotFoundException {
     Role roleUser = roleService.findByName(ROLE_ADMIN);

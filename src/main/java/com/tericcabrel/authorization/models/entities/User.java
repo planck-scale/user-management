@@ -3,20 +3,21 @@ package com.tericcabrel.authorization.models.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @Data
+@ToString(exclude = {"password"})
 @Document(collection = "users")
 public class User extends BaseModel {
     private String firstName;
@@ -26,7 +27,10 @@ public class User extends BaseModel {
     private String gender;
 
     @Field("email")
+    @Indexed
     private String email;
+
+    private String phoneNumber;
 
     @JsonIgnore
     private String password;
@@ -47,19 +51,28 @@ public class User extends BaseModel {
     @DBRef
     private Set<Permission> permissions;
 
+    @Indexed
+    private List<String> groupPaths;
+
+    private Map<String, String> attributes;
+
     public User() {
+
         permissions = new HashSet<>();
+        attributes = new HashMap<>();
     }
 
-    public User(String firstName, String lastName, String email, String password, String gender) {
+    public User(String firstName, String lastName, String email, String password, String phoneNumber, String gender) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.gender = gender;
+        this.phoneNumber = phoneNumber;
         this.enabled = true;
         this.confirmed = false;
         permissions = new HashSet<>();
+        this.attributes = new HashMap<>();
     }
 
     public void addPermission(Permission permission) {
