@@ -1,9 +1,10 @@
 package com.tericcabrel.authorization.controllers;
 
 import com.tericcabrel.authorization.models.dtos.CreateGroupDto;
+import com.tericcabrel.authorization.models.dtos.CreateGroupMemberDto;
 import com.tericcabrel.authorization.models.entities.Group;
-import com.tericcabrel.authorization.models.entities.Role;
 import com.tericcabrel.authorization.models.entities.User;
+import com.tericcabrel.authorization.models.response.UserListResponse;
 import com.tericcabrel.authorization.models.response.UserResponse;
 import com.tericcabrel.authorization.services.interfaces.HierarchyService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -25,7 +27,7 @@ public class HierarchyController {
     private HierarchyService hierarchyService;
 
 
-    // @PreAuthorize("hasAuthority('create:group')")
+    @PreAuthorize("hasAuthority('create:group')")
     @PostMapping("/group")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupDto createGroupDto) {
 
@@ -33,13 +35,43 @@ public class HierarchyController {
         return ResponseEntity.ok(group);
     }
 
-    // @PreAuthorize("hasAuthority('update:user')")
-    @PutMapping("/user/{email}/group/{groupName}")
-    public ResponseEntity<UserResponse> addUserToGroup(@PathVariable String email, @PathVariable String groupName) {
+    @PreAuthorize("hasAuthority('read:group')")
+    @GetMapping("/group/{groupName}")
+    public ResponseEntity<Group> getGroup(@PathVariable String groupName) {
+        Group group = hierarchyService.getGroup(groupName);
+        return ResponseEntity.ok(group);
+    }
 
-        User user = hierarchyService.addUserToGroup(email, groupName);
+    @PreAuthorize("hasAuthority('update:user')")
+    @PutMapping("/group/member")
+    public ResponseEntity<UserResponse> addUserToGroup(@Valid @RequestBody CreateGroupMemberDto member) {
+
+        User user = hierarchyService.addUserToGroup(member);
         return ResponseEntity.ok(new UserResponse(user));
     }
 
+    @PreAuthorize("hasAuthority('read:users')")
+    @GetMapping("/group/{groupName}/members")
+    public ResponseEntity<UserListResponse> getGroupMembers(@PathVariable String groupName) {
 
+        List<User> users = hierarchyService.findUsersInSubtree(groupName);
+        return ResponseEntity.ok(new UserListResponse(users));
+    }
+
+
+    @PreAuthorize("hasAuthority('read:users')")
+    @GetMapping("/siblings/{email}")
+    public ResponseEntity<UserListResponse> getSiblings(@PathVariable String email) {
+
+        List<User> users = hierarchyService.findSiblings(email);
+        return ResponseEntity.ok(new UserListResponse(users));
+    }
+
+    @PreAuthorize("hasAuthority('read:users')")
+    @GetMapping("/user/{email}/children")
+    public ResponseEntity<UserListResponse> getChildren(@PathVariable String email) {
+
+        List<User> users = hierarchyService.findChildren(email);
+        return ResponseEntity.ok(new UserListResponse(users));
+    }
 }

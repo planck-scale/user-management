@@ -1,0 +1,9 @@
+{
+  "CSV_FILE": "users.csv",
+  "JSON_TEMPLATE_FILE": "create_user.json",
+  "API_HOST": "localhost:5403",
+  "API_PATH": "/auth/register",
+  "API_METHOD": "POST",
+  "USE_HTTPS": false,
+  "TOKEN" : ""
+}

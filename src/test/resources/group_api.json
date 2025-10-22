@@ -1,0 +1,9 @@
+{
+  "CSV_FILE": "groups.csv",
+  "JSON_TEMPLATE_FILE": "groups.json",
+  "API_HOST": "localhost:5403",
+  "API_PATH": "/hierarchy/group",
+  "API_METHOD": "POST",
+  "USE_HTTPS": false,
+  "TOKEN" : ""
+}

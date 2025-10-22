@@ -17,8 +17,6 @@ import com.tericcabrel.authorization.services.interfaces.UserService;
 import com.tericcabrel.authorization.utils.Helpers;
 import com.tericcabrel.authorization.utils.JwtTokenUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
