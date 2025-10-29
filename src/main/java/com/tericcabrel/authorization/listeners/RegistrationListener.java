@@ -3,7 +3,6 @@ package com.tericcabrel.authorization.listeners;
 import com.tericcabrel.authorization.events.OnRegistrationCompleteEvent;
 import com.tericcabrel.authorization.models.entities.User;
 import com.tericcabrel.authorization.services.interfaces.UserAccountService;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 @Slf4j

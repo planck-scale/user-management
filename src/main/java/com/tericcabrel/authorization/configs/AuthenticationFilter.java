@@ -9,13 +9,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -23,7 +21,7 @@ import java.io.IOException;
 import static com.tericcabrel.authorization.utils.Constants.*;
 
 @Slf4j
-@Component
+// @Component
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -67,9 +65,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userDetails, "", userDetails.getAuthorities()
                 );
-
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-
                 log.info("authenticated the user {} with object {}", username, authentication);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

@@ -1,7 +1,6 @@
 package com.tericcabrel.authorization.models.dtos;
 
 import com.tericcabrel.authorization.models.entities.Group;
-import com.tericcabrel.authorization.models.entities.Role;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

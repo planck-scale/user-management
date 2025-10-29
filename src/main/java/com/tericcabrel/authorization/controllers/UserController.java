@@ -13,8 +13,6 @@ import com.tericcabrel.authorization.services.FileStorageServiceImpl;
 import com.tericcabrel.authorization.services.interfaces.PermissionService;
 import com.tericcabrel.authorization.services.interfaces.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

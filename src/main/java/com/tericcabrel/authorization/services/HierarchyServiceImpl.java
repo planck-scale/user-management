@@ -17,7 +17,10 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -99,7 +102,9 @@ public class HierarchyServiceImpl implements HierarchyService {
 
         Group group = groupRepository.findByName(groupId).orElseThrow(() -> new IllegalArgumentException("Group not found"));
         String pathRegex = "^" + group.getPath();
-        return userRepository.findByGroupPathRegex(pathRegex);
+        List<User> users = userRepository.findByGroupPathRegex(pathRegex);
+        log.debug("returning hierarchy for {}, {}", group, users);
+        return users;
     }
 
     @Override
@@ -164,7 +169,7 @@ public class HierarchyServiceImpl implements HierarchyService {
         Set<String> childPathRegexes = mostSpecificUserPaths.stream()
                 .map(path -> "^" + path.replace("/", "\\/") + "[^/]+\\/$")
                 .collect(Collectors.toSet());
-
+        log.debug("all child path regex {}", childPathRegexes);
         if (childPathRegexes.isEmpty()) {
             return new ArrayList<>();
         }
@@ -222,6 +227,7 @@ public class HierarchyServiceImpl implements HierarchyService {
 
         // Execute the aggregation and map the results to the User class.
         var results = mongodb.aggregate(aggregation, "users", User.class);
+        log.debug("results {}", results);
         return results.getMappedResults();
     }
 }

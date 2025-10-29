@@ -1,7 +1,9 @@
 package com.tericcabrel.authorization.configs;
 
+import com.tericcabrel.authorization.converter.PlanckscaleJwtGrantedAuthoritiesConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +16,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
@@ -26,8 +30,11 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
-    @Autowired
-    AuthenticationFilter authFilter;
+    @Value("${jwk.set.uri}")
+    private String jwkSetUri;
+
+    // @Autowired
+    // AuthenticationFilter authFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -42,6 +49,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         log.debug("enabling filter chain");
         String[] whitelistedUrls = {"/", "/token/**", "/auth/**", "/login", "/css/**", "/js/**"};
@@ -50,6 +62,7 @@ public class WebSecurityConfig {
                         authorize.requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("USER")
                                 .requestMatchers("/users/**").authenticated()
+                                .requestMatchers("/hierarchy/**").authenticated()
                                 .requestMatchers(whitelistedUrls).permitAll()
                                 .anyRequest().permitAll()
 //                                .requestMatchers("/auth/**").permitAll()
@@ -57,8 +70,13 @@ public class WebSecurityConfig {
 //                                .requestMatchers("favicon.ico").permitAll()
 //                                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
                 )
-                .addFilterBefore(authFilter, AnonymousAuthenticationFilter.class)
+                // .addFilterBefore(authFilter, AnonymousAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(
+                                jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
+
+                )
 //                .csrf(csrf ->
 //                        csrf.ignoringRequestMatchers(whitelistedUrls)
 //                                .csrfTokenRepository(csrfTokenRepository()))
@@ -75,11 +93,20 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        PlanckscaleJwtGrantedAuthoritiesConverter grantedAuthoritiesConverter
+                = new PlanckscaleJwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
     @Bean
     public CsrfTokenRepository csrfTokenRepository() {
         HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
         repository.setHeaderName("X-XSRF-TOKEN"); // Customize header name if needed
         return repository;
     }
-
 }
