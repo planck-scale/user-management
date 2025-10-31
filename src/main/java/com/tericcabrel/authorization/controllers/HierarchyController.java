@@ -67,7 +67,7 @@ public class HierarchyController {
         return ResponseEntity.ok(new UserListResponse(users));
     }
 
-    // @PreAuthorize("hasAuthority('read:users')")
+    @PreAuthorize("hasAuthority('read:users')")
     @GetMapping("/user/{email}/children")
     public ResponseEntity<UserListResponse> getChildren(@PathVariable String email) {
 

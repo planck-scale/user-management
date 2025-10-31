@@ -20,7 +20,8 @@ public class PlanckscaleJwtGrantedAuthoritiesConverter implements
 
     private static final String DEFAULT_AUTHORITY_PREFIX = "SCOPE_";
 
-    private static final Collection<String> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES = Arrays.asList("scope", "scp");
+    private static final Collection<String> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES = Arrays.asList("scope", "scp",
+            "roles", "permissions");
 
     private String authorityPrefix = DEFAULT_AUTHORITY_PREFIX;
 
@@ -30,8 +31,11 @@ public class PlanckscaleJwtGrantedAuthoritiesConverter implements
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
         for (String authority : getAuthorities(jwt)) {
-            grantedAuthorities.add(new SimpleGrantedAuthority(this.authorityPrefix + authority));
+
+            SimpleGrantedAuthority auth = new SimpleGrantedAuthority(this.authorityPrefix + authority);
+            grantedAuthorities.add(auth);
         }
+        log.debug("all authorities from jwt {}", grantedAuthorities);
         return grantedAuthorities;
     }
 
@@ -60,6 +64,8 @@ public class PlanckscaleJwtGrantedAuthoritiesConverter implements
     }
 
     private String getAuthoritiesClaimName(Jwt jwt) {
+
+        log.debug("authoritiesClaimName {}", authoritiesClaimName);
         if (this.authoritiesClaimName != null) {
             return this.authoritiesClaimName;
         }
@@ -72,23 +78,25 @@ public class PlanckscaleJwtGrantedAuthoritiesConverter implements
     }
 
     private Collection<String> getAuthorities(Jwt jwt) {
-        String claimName = getAuthoritiesClaimName(jwt);
-        if (claimName == null) {
-            log.debug("Returning no authorities since could not find any claims that might contain scopes");
-            return Collections.emptyList();
-        }
-        log.debug("Looking for scopes in claim {}", claimName);
-        Object authorities = jwt.getClaim(claimName);
-        if (authorities instanceof String) {
-            if (StringUtils.hasText((String) authorities)) {
-                return Arrays.asList(((String) authorities).split(" "));
+
+        Collection<String> allAuthorities = new ArrayList<>();
+
+        for(String claimName: WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
+            log.debug("Looking for roles in claim {}", claimName);
+            Object authorities = jwt.getClaim(claimName);
+            // log.debug("fetched object from jwt with attribute {} -> {}", claimName, authorities);
+            if(authorities != null) {
+                if (authorities instanceof String) {
+                    if (StringUtils.hasText((String) authorities)) {
+                        allAuthorities.addAll(Arrays.asList(((String) authorities).split(" ")));
+                    }
+                }
+                if (authorities instanceof Collection) {
+                    allAuthorities.addAll(castAuthoritiesToCollection(authorities));
+                }
             }
-            return Collections.emptyList();
         }
-        if (authorities instanceof Collection) {
-            return castAuthoritiesToCollection(authorities);
-        }
-        return Collections.emptyList();
+        return allAuthorities;
     }
 
     @SuppressWarnings("unchecked")
