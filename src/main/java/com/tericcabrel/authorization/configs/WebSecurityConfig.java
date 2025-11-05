@@ -62,6 +62,7 @@ public class WebSecurityConfig {
                         authorize.requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("USER")
                                 .requestMatchers("/users/**").authenticated()
+                                .requestMatchers("/int/hierarchy/**").authenticated()
                                 .requestMatchers("/hierarchy/**").authenticated()
                                 .requestMatchers(whitelistedUrls).permitAll()
                                 .anyRequest().permitAll()

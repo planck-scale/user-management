@@ -53,6 +53,7 @@ def main():
     api_path = config.get("API_PATH")
     api_method = config.get("API_METHOD", "POST").upper()
     use_https = config.get("USE_HTTPS", True)
+    token = config.get("TOKEN")
 
     if not all([csv_file, json_template_file, api_host, api_path]):
         print("Missing required config values.")
@@ -67,7 +68,7 @@ def main():
 
         headers = {
             "Content-Type": "application/json",
-            # "Authorization" : "Bearer " + token,
+            "Authorization" : "Bearer " + token,
             "Content-Length": str(len(json_body))
         }
 

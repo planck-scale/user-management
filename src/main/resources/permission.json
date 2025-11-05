@@ -103,5 +103,15 @@
     "name": "remove:permission",
     "description": "Remove a permission to a role",
     "roleNames": ["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]
+  },
+  {
+    "name": "create:group",
+    "description": "Create a new Group",
+    "roleNames": ["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]
+  },
+  {
+    "name": "read:group",
+    "description": "Read a Group",
+    "roleNames": ["ROLE_ADMIN", "ROLE_SUPER_ADMIN"]
   }
 ]

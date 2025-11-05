@@ -19,15 +19,13 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/hierarchy")
+@RequestMapping(value = "/int/hierarchy")
 @Validated
-public class HierarchyController {
+public class HierarchyControllerInternal {
 
     @Autowired
     protected HierarchyService hierarchyService;
 
-
-    @PreAuthorize("hasAuthority('create:group')")
     @PostMapping("/group")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupDto createGroupDto) {
 
@@ -35,14 +33,12 @@ public class HierarchyController {
         return ResponseEntity.ok(group);
     }
 
-    @PreAuthorize("hasAuthority('read:group')")
     @GetMapping("/group/{groupName}")
     public ResponseEntity<Group> getGroup(@PathVariable String groupName) {
         Group group = hierarchyService.getGroup(groupName);
         return ResponseEntity.ok(group);
     }
 
-    @PreAuthorize("hasAuthority('update:user')")
     @PutMapping("/group/member")
     public ResponseEntity<UserResponse> addUserToGroup(@Valid @RequestBody CreateGroupMemberDto member) {
 
@@ -50,7 +46,6 @@ public class HierarchyController {
         return ResponseEntity.ok(new UserResponse(user));
     }
 
-    @PreAuthorize("hasAuthority('read:users')")
     @GetMapping("/group/{groupName}/members")
     public ResponseEntity<UserListResponse> getGroupMembers(@PathVariable String groupName) {
 
@@ -59,7 +54,6 @@ public class HierarchyController {
     }
 
 
-    @PreAuthorize("hasAuthority('read:users')")
     @GetMapping("/siblings/{email}")
     public ResponseEntity<UserListResponse> getSiblings(@PathVariable String email) {
 
@@ -67,7 +61,6 @@ public class HierarchyController {
         return ResponseEntity.ok(new UserListResponse(users));
     }
 
-    @PreAuthorize("hasAuthority('read:users')")
     @GetMapping("/user/{email}/children")
     public ResponseEntity<UserListResponse> getChildren(@PathVariable String email) {
 

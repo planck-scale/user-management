@@ -82,9 +82,8 @@ public class PlanckscaleJwtGrantedAuthoritiesConverter implements
         Collection<String> allAuthorities = new ArrayList<>();
 
         for(String claimName: WELL_KNOWN_AUTHORITIES_CLAIM_NAMES) {
-            log.debug("Looking for roles in claim {}", claimName);
             Object authorities = jwt.getClaim(claimName);
-            // log.debug("fetched object from jwt with attribute {} -> {}", claimName, authorities);
+            log.debug("fetched object from jwt with attribute {} -> {}", claimName, authorities);
             if(authorities != null) {
                 if (authorities instanceof String) {
                     if (StringUtils.hasText((String) authorities)) {

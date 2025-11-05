@@ -148,7 +148,7 @@ public class UserController {
     }
 
 
-    @PreAuthorize("hasAuthority('assign:permission')")
+    @PreAuthorize("hasAuthority('add:permission')")
     @PutMapping("/permissions")
     public ResponseEntity<UserResponse> assignPermissions(@Valid @RequestBody UpdateUserPermissionDto updateUserPermissionDto)
         throws ResourceNotFoundException {
@@ -167,7 +167,7 @@ public class UserController {
         return ResponseEntity.ok().body(new UserResponse(user));
     }
 
-    @PreAuthorize("hasAuthority('revoke:permission')")
+    @PreAuthorize("hasAuthority('remove:permission')")
     @DeleteMapping("/permissions")
     public ResponseEntity<User> revokePermissions(@Valid @RequestBody UpdateUserPermissionDto updateUserPermissionDto)
         throws ResourceNotFoundException {
