@@ -21,32 +21,28 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "/int/hierarchy")
 @Validated
-public class HierarchyControllerInternal {
+public class HierarchyControllerInternal implements HierarchyAPI {
 
     @Autowired
     protected HierarchyService hierarchyService;
 
-    @PostMapping("/group")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupDto createGroupDto) {
 
         Group group = hierarchyService.createGroup(createGroupDto.getName(), createGroupDto.getParentName());
         return ResponseEntity.ok(group);
     }
 
-    @GetMapping("/group/{groupName}")
     public ResponseEntity<Group> getGroup(@PathVariable String groupName) {
         Group group = hierarchyService.getGroup(groupName);
         return ResponseEntity.ok(group);
     }
 
-    @PutMapping("/group/member")
     public ResponseEntity<UserResponse> addUserToGroup(@Valid @RequestBody CreateGroupMemberDto member) {
 
         User user = hierarchyService.addUserToGroup(member);
         return ResponseEntity.ok(new UserResponse(user));
     }
 
-    @GetMapping("/group/{groupName}/members")
     public ResponseEntity<UserListResponse> getGroupMembers(@PathVariable String groupName) {
 
         List<User> users = hierarchyService.findUsersInSubtree(groupName);
@@ -54,14 +50,12 @@ public class HierarchyControllerInternal {
     }
 
 
-    @GetMapping("/siblings/{email}")
     public ResponseEntity<UserListResponse> getSiblings(@PathVariable String email) {
 
         List<User> users = hierarchyService.findSiblings(email);
         return ResponseEntity.ok(new UserListResponse(users));
     }
 
-    @GetMapping("/user/{email}/children")
     public ResponseEntity<UserListResponse> getChildren(@PathVariable String email) {
 
         List<User> users = hierarchyService.findChildren(email);

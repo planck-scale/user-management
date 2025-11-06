@@ -19,16 +19,14 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/hierarchy")
+@RequestMapping(value = "/ext/hierarchy")
 @Validated
-public class HierarchyController {
+public class HierarchyController implements HierarchyAPI {
 
     @Autowired
     protected HierarchyService hierarchyService;
 
-
     @PreAuthorize("hasAuthority('create:group')")
-    @PostMapping("/group")
     public ResponseEntity<Group> createGroup(@Valid @RequestBody CreateGroupDto createGroupDto) {
 
         Group group = hierarchyService.createGroup(createGroupDto.getName(), createGroupDto.getParentName());
@@ -36,14 +34,12 @@ public class HierarchyController {
     }
 
     @PreAuthorize("hasAuthority('read:group')")
-    @GetMapping("/group/{groupName}")
     public ResponseEntity<Group> getGroup(@PathVariable String groupName) {
         Group group = hierarchyService.getGroup(groupName);
         return ResponseEntity.ok(group);
     }
 
     @PreAuthorize("hasAuthority('update:user')")
-    @PutMapping("/group/member")
     public ResponseEntity<UserResponse> addUserToGroup(@Valid @RequestBody CreateGroupMemberDto member) {
 
         User user = hierarchyService.addUserToGroup(member);
@@ -51,16 +47,13 @@ public class HierarchyController {
     }
 
     @PreAuthorize("hasAuthority('read:users')")
-    @GetMapping("/group/{groupName}/members")
     public ResponseEntity<UserListResponse> getGroupMembers(@PathVariable String groupName) {
 
         List<User> users = hierarchyService.findUsersInSubtree(groupName);
         return ResponseEntity.ok(new UserListResponse(users));
     }
 
-
     @PreAuthorize("hasAuthority('read:users')")
-    @GetMapping("/siblings/{email}")
     public ResponseEntity<UserListResponse> getSiblings(@PathVariable String email) {
 
         List<User> users = hierarchyService.findSiblings(email);
@@ -68,7 +61,6 @@ public class HierarchyController {
     }
 
     @PreAuthorize("hasAuthority('read:users')")
-    @GetMapping("/user/{email}/children")
     public ResponseEntity<UserListResponse> getChildren(@PathVariable String email) {
 
         List<User> users = hierarchyService.findChildren(email);
