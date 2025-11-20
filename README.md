@@ -41,8 +41,8 @@ $ mvn install
 - Create the configuration file and update with your local config
 ```bash
 $ cd src/main/resources
-$ cp application-example.properties application.properties
-$ nano application.properties
+$ cp application-example.properties user-management.properties
+$ nano user-management.properties
 ```
 - Start Application
 ```bash

@@ -59,13 +59,11 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         String mailFrom = environment.getProperty("spring.mail.properties.mail.smtp.from");
         String mailFromName = environment.getProperty("mail.from.name", "Identity");
 
-        final MimeMessage mimeMessage = this.mailSender.createMimeMessage();
+        final MimeMessage mimeMessage = mailSender.createMimeMessage();
         final MimeMessageHelper email;
         try {
             log.debug("sending confirmation email to {}", user.getEmail());
-
             email = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
             email.setTo(user.getEmail());
             email.setSubject(MAIL_SUBJECT);
             email.setFrom(new InternetAddress(mailFrom, mailFromName));
