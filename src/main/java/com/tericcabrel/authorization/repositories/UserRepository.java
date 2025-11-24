@@ -15,4 +15,6 @@ public interface UserRepository extends MongoRepository<User, ObjectId> {
 
     @Query("{ 'groupPaths' : { $elemMatch: { $regex: ?0 } } }")
     List<User> findByGroupPathRegex(String pathRegex);
+
+    Optional<User> findByEmailAndTenantId(String email, String tenantId);
 }

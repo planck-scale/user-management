@@ -76,20 +76,14 @@ public class AuthController {
         try {
             log.debug("saving user {}", createUserDto);
             Role roleUser = roleService.findByName(ROLE_USER);
-
             createUserDto.setRole(roleUser);
-
             User user = userService.save(createUserDto);
-
             eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
-
             return ResponseEntity.ok(user);
         } catch (ResourceNotFoundException e) {
                 Map<String, String> result = new HashMap<>();
                 result.put("message", SWG_AUTH_REGISTER_ERROR);
-
                 log.error("Register User: " + ROLE_NOT_FOUND_MESSAGE);
-
                 return ResponseEntity.badRequest().body(result);
         }
     }

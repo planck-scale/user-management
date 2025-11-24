@@ -51,6 +51,8 @@ public class CreateUserDto {
     @NotBlank(message = "This field is required")
     private String confirmPassword;
 
+    private String tenantId;
+
     private String gender;
 
     private String avatar;

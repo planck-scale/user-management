@@ -1,9 +1,7 @@
 package com.tericcabrel.authorization.utils;
 
 import com.tericcabrel.authorization.models.entities.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,11 +17,20 @@ import static com.tericcabrel.authorization.utils.Constants.TOKEN_LIFETIME_SECON
 @Component
 public class JwtTokenUtil implements Serializable {
 
+    // deprecated, jwt is verified thru authorization server
     @Value("${app.jwt.secret.key}")
     private String jwtSecretKey;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public String getTenantFromTokenUnsecure(String token) {
+        int i = token.lastIndexOf('.');
+        String withoutSignature = token.substring(0, i + 1);
+        Jwt<Header, Claims> untrustedJwt = Jwts.parser().parseClaimsJwt(withoutSignature);
+        Claims claims = untrustedJwt.getBody();
+        return claims.get("tenant", String.class);
     }
 
     public Date getExpirationDateFromToken(String token) {

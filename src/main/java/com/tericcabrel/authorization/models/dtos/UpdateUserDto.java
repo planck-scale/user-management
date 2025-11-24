@@ -22,9 +22,9 @@ public class UpdateUserDto {
 
     private String avatar;
 
-    private boolean enabled;
+    private Boolean enabled;
 
-    private boolean confirmed;
+    private Boolean confirmed;
 
     private Coordinates coordinates;
 

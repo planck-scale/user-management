@@ -1,6 +1,7 @@
 package com.tericcabrel.authorization.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -30,12 +31,16 @@ public class User extends BaseModel {
     @Indexed
     private String email;
 
+    private String tenantId;
+
     private String phoneNumber;
 
     @JsonIgnore
     private String password;
 
     private boolean enabled;
+
+    private Boolean deleted;
 
     private boolean confirmed;
 

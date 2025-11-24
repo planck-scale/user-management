@@ -1,12 +1,15 @@
 package com.tericcabrel.authorization.configs;
 
+import com.tericcabrel.authorization.components.CustomAuthenticationEntryPoint;
 import com.tericcabrel.authorization.converter.PlanckscaleJwtGrantedAuthoritiesConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -22,6 +25,12 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 
 @Configuration
@@ -72,7 +81,14 @@ public class WebSecurityConfig {
 //                                .requestMatchers("/login", "/css/**", "/js/**").permitAll()
                 )
                 // .addFilterBefore(authFilter, AnonymousAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .defaultAuthenticationEntryPointFor(
+                                new CustomAuthenticationEntryPoint(),
+                                new MediaTypeRequestMatcher(MediaType.APPLICATION_JSON)
+                        )
+                )
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.decoder(
                                 jwtDecoder()).jwtAuthenticationConverter(jwtAuthenticationConverter()))
@@ -81,10 +97,10 @@ public class WebSecurityConfig {
 //                .csrf(csrf ->
 //                        csrf.ignoringRequestMatchers(whitelistedUrls)
 //                                .csrfTokenRepository(csrfTokenRepository()))
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .permitAll()
-                )
+//                .formLogin(form -> form
+//                        .loginPage("/login")
+//                        .permitAll()
+//                )
                 .logout(logout -> logout
                         .permitAll())
                 .sessionManagement(
@@ -92,6 +108,25 @@ public class WebSecurityConfig {
                                         SessionCreationPolicy.STATELESS))
                 .userDetailsService(userDetailsService);
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",  // shell MFE
+                "http://localhost:3001"   // auth MFE
+        ));
+
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("*"));
+        config.setAllowCredentials(true); // REQUIRED if using cookies/session login
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     JwtAuthenticationConverter jwtAuthenticationConverter() {
